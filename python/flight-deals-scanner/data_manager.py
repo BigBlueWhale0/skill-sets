@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SHEETY_ENDPOINT = os.environ.get("ENV_SHEETY_ENDPOINT")
+SHEETY_PRICES_ENDPOINT = os.environ.get("ENV_SHEETY_PRICES_ENDPOINT")
+SHEETY_USERS_ENDPOINT = os.environ.get("ENV_SHEETY_USERS_ENDPOINT")
 SHEETY_TOKEN = os.environ.get("ENV_SHEETY_TOKEN")
 
 class DataManager:
@@ -17,7 +18,7 @@ class DataManager:
         self.destination_data = {}
 
     def get_destination_data(self):
-        sheety_response = requests.get(SHEETY_ENDPOINT, verify=False, headers=self.headers)
+        sheety_response = requests.get(SHEETY_PRICES_ENDPOINT, verify=False, headers=self.headers)
         sheety_data = sheety_response.json()
         self.sheety_prices = sheety_data["prices"]
         return self.sheety_prices
@@ -29,7 +30,7 @@ class DataManager:
                     "iataCode": city["iataCode"]
                 }
             }
-            response = requests.put(f"{SHEETY_ENDPOINT}/{city['id']}",json=iata_data,verify=False, headers=self.headers)
+            requests.put(f"{SHEETY_PRICES_ENDPOINT}/{city['id']}",json=iata_data,verify=False, headers=self.headers)
 
     def update_price(self):
         for city in self.destination_data:
@@ -39,5 +40,11 @@ class DataManager:
                     "dates": city["dates"]
                 }
             }
-            response = requests.put(f"{SHEETY_ENDPOINT}/{city['id']}",json=price_data,verify=False, headers=self.headers)
+            requests.put(f"{SHEETY_PRICES_ENDPOINT}/{city['id']}",json=price_data,verify=False, headers=self.headers)
 
+    def get_customer_emails(self):
+        sheety_response = requests.get(SHEETY_USERS_ENDPOINT, verify=False, headers=self.headers)
+        sheety_data = sheety_response.json()
+        self.sheety_users = sheety_data["users"]
+        emails = [user["whatIsYourEmail?"] for user in self.sheety_users]
+        return emails

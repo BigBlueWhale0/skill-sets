@@ -2,7 +2,6 @@ import os
 import requests
 from dotenv import load_dotenv
 from datetime import datetime,timedelta
-
 load_dotenv()
 
 AMADEUS_API_KEY = os.environ.get("ENV_AMADEUS_API_KEY")
@@ -51,38 +50,39 @@ class FlightSearch:
             city_code = "N/A"
         return city_code
 
-    def collect_flight_info(self, city_code):
+    def check_flights(self, origin_city_code, destination_city_code, from_time, to_time, is_direct="true"):
         search_url = f"https://{AMADEUS_API_URL_V2}/shopping/flight-offers"
+        search_params = {
+            "originLocationCode": origin_city_code,
+            "destinationLocationCode": destination_city_code,
+            "departureDate": from_time,
+            "returnDate": to_time,
+            "adults": "1",
+            "nonStop": is_direct,
+            "currencyCode": "GBP",
+            "max": "10",
+        }
+        response = requests.get(search_url, params=search_params, headers=self.headers, verify=False)
+        if response.status_code == "429":
+            response.raise_for_status()
+            return []
+        response_json = response.json()
+        try:
+            response_data = response_json["data"]
+        except KeyError:
+            response_data = []
+        return response_data
+
+
+    def collect_flight_info(self, city_code):
         case = []
         for day_number in range(3):
             first_date = (datetime.today() + timedelta(day_number)).strftime("%Y-%m-%d")
-            last_date = (datetime.today() + timedelta(day_number + 7)).strftime("%Y-%m-%d")
-            search_params = {
-                "originLocationCode": ORIGIN_LOCATION,
-                "destinationLocationCode": city_code,
-                "departureDate": first_date,
-                "returnDate": last_date,
-                "adults": "1",
-                "nonStop": "true",
-                "currencyCode": "GBP",
-                "max": "10",
-            }
-            response = requests.get(search_url, params=search_params, headers=self.headers, verify=False)
-            if response.status_code == "429":
-                response.raise_for_status()
-                return []
-            response_json = response.json()
-            try:
-                response_data = response_json["data"]
-            except KeyError:
-                response_data = []
-            if response_data != []:
-                response_data = response_json["data"]
-                for flight in response_data:
-                    departure_time = flight["itineraries"][0]["segments"][0]["departure"]["at"]
-                    arrival_time = flight["itineraries"][1]["segments"][0]["arrival"]["at"]
-                    price = flight["price"]["total"]
-                    case.append({"departure_time":departure_time,"arrival_time":arrival_time,"price":price})
+            last_date = (datetime.today() + timedelta(day_number + 6*30)).strftime("%Y-%m-%d")
+            response_data = self.check_flights(ORIGIN_LOCATION,city_code,first_date,last_date,"true")
+            if response_data == []:
+                response_data = self.check_flights(ORIGIN_LOCATION, city_code, first_date, last_date, "false")
+            case.append(response_data)
         return case
 
 
