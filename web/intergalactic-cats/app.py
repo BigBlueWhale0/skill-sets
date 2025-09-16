@@ -22,6 +22,10 @@ def get_news():
         content = json.load(file)
     return content
 
+def get_about():
+    with open("data/about.json") as file:
+        content = json.load(file)
+    return content
 
 @app.route("/")
 def home():
@@ -32,12 +36,12 @@ def home():
 @app.route("/news")
 def news():
     all_posts = get_news()
-    print(all_posts)
     return render_template("news.html", all_posts=all_posts)
 
 @app.route("/about")
 def about():
-    return render_template("about.html")
+    all_posts = get_about()
+    return render_template("about.html",all_posts=all_posts)
 
 if __name__ == "__main__":
     app.run(debug=True)
