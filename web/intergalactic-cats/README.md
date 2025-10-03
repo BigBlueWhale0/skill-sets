@@ -6,3 +6,5 @@ This is one of my first web design projects using stack:
 * Bootstrap
 
 ![screenshot](screenshot.png)
+
+#html #css #bootstrap #python #flask 
