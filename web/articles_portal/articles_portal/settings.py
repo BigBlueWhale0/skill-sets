@@ -50,6 +50,23 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+if DEBUG:
+    INSTALLED_APPS += [
+        "debug_toolbar"
+    ]
+
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware"
+    ]
+
+    import socket
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostbyname('localhost'))
+    docker_ips = [ip[:1] + "1" for ip in ips]
+
+    INTERNAL_IPS = docker_ips + ["127.0.0.1"]
+
+
+
 ROOT_URLCONF = 'articles_portal.urls'
 
 TEMPLATES = [
