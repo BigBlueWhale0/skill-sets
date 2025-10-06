@@ -4,6 +4,7 @@ from django.urls import reverse_lazy
 # from app.forms import CreateArticleForm
 from django.views.generic import CreateView,ListView,UpdateView,DeleteView
 
+# CBV solution
 class ArticleListView(ListView):
     template_name = "app/home.html"
     model = Article
@@ -12,13 +13,13 @@ class ArticleListView(ListView):
 class ArticleCreateView(CreateView):
     template_name = "app/article_create.html"
     model = Article
-    fields = ["title","status","content","word_count","twitter_post"]
+    fields = ["title","status","content","twitter_post"]
     success_url = reverse_lazy("home")
 
 class ArticleUpdateView(UpdateView):
     template_name = "app/article_update.html"
     model = Article
-    fields = ["title","status","content","word_count","twitter_post"]
+    fields = ["title","status","content","twitter_post"]
     success_url = reverse_lazy("home")
     context_object_name = "article"
 
@@ -27,6 +28,7 @@ class ArticleDeleteView(DeleteView):
     model = Article
     success_url = reverse_lazy("home")
     context_object_name = "article"
+
 
 # def home(request):
 #     articles = Article.objects.all()
@@ -41,7 +43,6 @@ class ArticleDeleteView(DeleteView):
 #                 title = form_data['title'],
 #                 status = form_data['status'],
 #                 content = form_data['content'],
-#                 word_count = form_data['word_count'],
 #                 twitter_post = form_data['twitter_post']
 #             )
 #             new_article.save()
